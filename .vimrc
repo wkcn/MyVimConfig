@@ -1,7 +1,39 @@
+set nocompatible
+source $VIMRUNTIME/vimrc_example.vim
+source $VIMRUNTIME/mswin.vim
+behave mswin
+
+set diffexpr=MyDiff()
+function MyDiff()
+  let opt = '-a --binary '
+  if &diffopt =~ 'icase' | let opt = opt . '-i ' | endif
+  if &diffopt =~ 'iwhite' | let opt = opt . '-b ' | endif
+  let arg1 = v:fname_in
+  if arg1 =~ ' ' | let arg1 = '"' . arg1 . '"' | endif
+  let arg2 = v:fname_new
+  if arg2 =~ ' ' | let arg2 = '"' . arg2 . '"' | endif
+  let arg3 = v:fname_out
+  if arg3 =~ ' ' | let arg3 = '"' . arg3 . '"' | endif
+  let eq = ''
+  if $VIMRUNTIME =~ ' '
+    if &sh =~ '\<cmd'
+      let cmd = '""' . $VIMRUNTIME . '\diff"'
+      let eq = '"'
+    else
+      let cmd = substitute($VIMRUNTIME, ' ', '" ', '') . '\diff"'
+    endif
+  else
+    let cmd = $VIMRUNTIME . '\diff'
+  endif
+  silent execute '!' . cmd . ' ' . opt . arg1 . ' ' . arg2 . ' > ' . arg3 . eq
+endfunction
+
+
+"原作者: ChenLei
 "========================================================================="
 let template_load=1
 let template_tags_replacing=1
-let T_AUTHOR="ChenLei"
+let T_AUTHOR=""
 let T_DATE_FORMAT="%Y-%m-%d %H:%m:%S"
 "==================================================================i=======
 set nocompatible            " 关闭 vi 兼容模式
@@ -257,167 +289,99 @@ smap <silent> <C-e> <Plug>(neocomplcache_snippets_expand)
 " 自定义配置
 "----------------------------------------------------------------- 
 :highlight Folded ctermfg=0 ctermbg=7
-set statusline+=%f	"显示当前文件名
+set t_Co=256
 
 func! CompileCpp()
 	exec "w"
-	exec "!clang++ % -o %< -g  -std=c++11 -Wno-invalid-source-encoding -Wall -Wextra -Wformat-nonliteral -Wcast-align -Wpointer-arith -Wbad-function-cast -Wmissing-prototypes -Wstrict-prototypes -Wmissing-declarations -Winline -Wundef -Wnested-externs -Wcast-qual -Wshadow -Wwrite-strings -Wno-unused-parameter -Wfloat-equal -pedantic -ansi"
+	if filereadable("MakeFile")
+		exec "!make"
+	elseif filereadable("build.sh")
+		exec "!sh ./build.sh"
+	else
+		exec "!clang++ % -o %< -g  -std=c++11 -Wno-invalid-source-encoding"
+	endif
 endfunc
 
 func! Run()
-	exec "!./%<"
-endfunc
-
-func! RunApp()
-	exec "!./app"
+	if filereadable("app")
+		exec "!./app"
+	else
+		exec "!./%<"
+	endif
 endfunc
 
 func! ComAndRun()
-    exec "w"
+	exec "w"
     let file_name = expand("%:p")
     let file_ext = expand("%:e")
     " vim中.号为字符串连接？
     if file_ext == "py"
         exec "!python ".file_name
     else
-        exec "!clang++ % -o %< -g  -std=c++11 -Wno-invalid-source-encoding -Wall -Wextra -Wformat-nonliteral -Wcast-align -Wpointer-arith -Wbad-function-cast -Wmissing-prototypes -Wstrict-prototypes -Wmissing-declarations -Winline -Wundef -Wnested-externs -Wcast-qual -Wshadow -Wwrite-strings -Wno-unused-parameter -Wfloat-equal -pedantic -ansi"
-        exec "!./%<"
+		call CompileCpp()
+		call Run()
     endif
-endfunc
-
-func! Make()
-	exec "w"
-	exec "!make"
 endfunc
 
 func! ComAll()
 	exec "w"
-	exec "!clang++ *.cpp -o app -g -std=c++11 -Wno-invalid-source-encoding -Wall -Wextra -Wformat-nonliteral -Wcast-align -Wpointer-arith -Wbad-function-cast -Wmissing-prototypes -Wstrict-prototypes -Wmissing-declarations -Winline -Wundef -Wnested-externs -Wcast-qual -Wshadow -Wwrite-strings -Wno-unused-parameter -Wfloat-equal -pedantic -ansi"
-endfunc
-
-func! ComAllAndRun()
-	exec "w"
-	exec "!clang++ *.cpp -o app -g -std=c++11 -Wno-invalid-source-encoding -Wall -Wextra -Wformat-nonliteral -Wcast-align -Wpointer-arith -Wbad-function-cast -Wmissing-prototypes -Wstrict-prototypes -Wmissing-declarations -Winline -Wundef -Wnested-externs -Wcast-qual -Wshadow -Wwrite-strings -Wno-unused-parameter -Wfloat-equal -pedantic"
-	exec "!./app"
+	exec "!clang++ *.cpp -o app -g -std=c++11 -Wno-invalid-source-encoding"
 endfunc
 
 func! Debug()
-	exec "!gdb %<"
+	if filereadable("app")
+		exec "!gdb app"
+	else
+		exec "!gdb %<"
+	endif
 endfunc
 
-func! RunSH()
-    exec "!./run.sh"
-endfunc
-
-map <F4> :call ComAllAndRun()<CR>
-map <C+F4> :call ComAll()<CR>
-map <C+F9> :call RunSH()<CR>
 map <F5> :call ComAndRun()<CR>
 map <C-F5> :call CompileCpp()<CR>
 map <F6> :call Run()<CR>
-map <C-F6> :call RunApp()<CR>
-map <A-F6> :call RunApp()<CR>
 map <F7> :call ComAll()<CR>
-map <C-F7> :call Make()<CR>
-map <F8> :call Debug()<CR>
-map <F2> ggVG"+y
-map <F3> "+p
+map <C-F7> :call RunApp()<CR>
+map <F9> :call Debug()<CR>
+map <F2> ggVG"+y<CR>
+map <F3> "+p<CR>
 "vmap <c-c> "+y
 "set directory=/tmp
 
-set t_Co=256
-set fileencodings=utf-8,ucs-bom,gb18030,gbk,gb2312,cp936    "编码
 
-execute pathogen#infect()
+
+"后面这一段会产生乱码，暂时忽略 call vundle#begin()
+
+let g:SuperTabDefaultCompletionType="context"   
+
+let g:ycm_confirm_extra_conf = 0
+
+set completeopt=menu
+
+set rtp+=~/.vim/bundle/vundle/ 
+call vundle#rc()
+Bundle 'gmarik/vundle'
+
+
+Bundle 'terryma/vim-multiple-cursors'
+" Default mapping
+let g:multi_cursor_next_key='<C-n>'
+let g:multi_cursor_prev_key='<C-p>'
+let g:multi_cursor_skip_key='<C-x>'
+let g:multi_cursor_quit_key='<Esc>'
+
+"语法检查
+Bundle 'scrooloose/syntastic'
+" configure syntastic syntax checking to check on open as well as save
+let g:syntastic_check_on_open=1
+let g:syntastic_html_tidy_ignore_errors=[" proprietary attribute \"ng-"]
+let g:syntastic_always_populate_loc_list = 1
+let g:syntastic_auto_loc_list = 1
+let g:syntastic_check_on_wq = 0
 set statusline+=%#warningmsg#
 set statusline+=%{SyntasticStatuslineFlag()}
 set statusline+=%*
 
-let g:syntastic_always_populate_loc_list = 1
-let g:syntastic_auto_loc_list = 1
-let g:syntastic_check_on_open = 1
-let g:syntastic_check_on_wq = 0
-
-autocmd FileType java set omnifunc=javacomplete#Complete
-
-"Vundle
-    set nocompatible              " be iMproved, required
-    filetype off                  " required
-
-    " set the runtime path to include Vundle and initialize
-    set rtp+=~/.vim/bundle/Vundle.vim
-    call vundle#begin()
-    " alternatively, pass a path where Vundle should install plugins
-    "call vundle#begin('~/some/path/here')
-
-    " let Vundle manage Vundle, required
-    Plugin 'gmarik/Vundle.vim'
-
-    " The following are examples of different formats supported.
-    " Keep Plugin commands between vundle#begin/end.
-    " plugin on GitHub repo
-    
-    Plugin 'Valloric/YouCompleteMe'
-    
-    Plugin 'tpope/vim-fugitive'
-    " plugin from http://vim-scripts.org/vim/scripts.html
-    "Plugin 'L9'
-    " Git plugin not hosted on GitHub
-    "Plugin 'git://git.wincent.com/command-t.git'
-    " git repos on your local machine (i.e. when working on your own plugin)
-    "Plugin 'file:///home/gmarik/path/to/plugin'
-    " The sparkup vim script is in a subdirectory of this repo called vim.
-    " Pass the path to set the runtimepath properly.
-    "Plugin 'rstacruz/sparkup', {'rtp': 'vim/'}
-    " Avoid a name conflict with L9
-    "Plugin 'user/L9', {'name': 'newL9'}
-
-    " All of your Plugins must be added before the following line
-    call vundle#end()            " required
-    filetype plugin indent on    " required
-    " To ignore plugin indent changes, instead use:
-    "filetype plugin on
-    "
-    " Brief help
-    " :PluginList          - list configured plugins
-    " :PluginInstall(!)    - install (update) plugins
-    " :PluginSearch(!) foo - search (or refresh cache first) for foo
-    " :PluginClean(!)      - confirm (or auto-approve) removal of unused plugins
-    "
-    " see :h vundle for more details or wiki for FAQ
-    " Put your non-Plugin stuff after this line
-    
-" 自动补全配置
-set completeopt=longest,menu    "让Vim的补全菜单行为与一般IDE一致(参考VimTip1228)
-autocmd InsertLeave * if pumvisible() == 0|pclose|endif "离开插入模式后自动关闭预览窗口
-inoremap <expr> <CR>       pumvisible() ? "\<C-y>" : "\<CR>"    "回车即选中当前项
-"上下左右键的行为 会显示其他信息
-inoremap <expr> <Down>     pumvisible() ? "\<C-n>" : "\<Down>"
-inoremap <expr> <Up>       pumvisible() ? "\<C-p>" : "\<Up>"
-inoremap <expr> <PageDown> pumvisible() ? "\<PageDown>\<C-p>\<C-n>" : "\<PageDown>"
-inoremap <expr> <PageUp>   pumvisible() ? "\<PageUp>\<C-p>\<C-n>" : "\<PageUp>"
-
-"youcompleteme  默认tab  s-tab 和自动补全冲突
-"let g:ycm_key_list_select_completion=['<c-n>']
-let g:ycm_key_list_select_completion = ['<Down>']
-"let g:ycm_key_list_previous_completion=['<c-p>']
-let g:ycm_key_list_previous_completion = ['<Up>']
-let g:ycm_confirm_extra_conf=0 "关闭加载.ycm_extra_conf.py提示
-
-let g:ycm_collect_identifiers_from_tags_files=1 " 开启 YCM 基于标签引擎
-let g:ycm_min_num_of_chars_for_completion=2 " 从第2个键入字符就开始罗列匹配项
-let g:ycm_cache_omnifunc=0  " 禁止缓存匹配项,每次都重新生成匹配项
-let g:ycm_seed_identifiers_with_syntax=1    " 语法关键字补全
-nnoremap <F9> :YcmForceCompileAndDiagnostics<CR>
-"nnoremap <leader>lo :lopen<CR> "open locationlist
-"nnoremap <leader>lc :lclose<CR>    "close locationlist
-inoremap <leader><leader> <C-x><C-o>
-
-"在注释输入中也能补全
-let g:ycm_complete_in_comments = 1
-"在字符串输入中也能补全
-let g:ycm_complete_in_strings = 1
-"注释和字符串中的文字也会被收入补全
-let g:ycm_collect_identifiers_from_comments_and_strings = 0
-
-nnoremap <leader>jd :YcmCompleter GoToDefinitionElseDeclaration<CR> " 跳转到定义处
+Bundle 'msanders/snipmate.vim'
+Bundle 'tmhedberg/matchit'
+Bundle 'bling/vim-airline'
+let g:airline_theme="luna" 
