@@ -28,6 +28,19 @@ function MyDiff()
   silent execute '!' . cmd . ' ' . opt . arg1 . ' ' . arg2 . ' > ' . arg3 . eq
 endfunction
 
+if has("win32")
+	let $VIMFILES = $VIM.'/vimfiles'
+else
+    let $VIMFILES = $HOME.'/.vim'
+endif
+
+
+set fencs=utf-8,gbk
+"Persistent Undo
+set undofile
+set undodir=$VIMFILES/\_undodir
+set undolevels=1000 "maximum number of changes that can be undone
+
 
 "原作者: ChenLei
 "========================================================================="
@@ -260,7 +273,7 @@ let g:NeoComplCache_EnableSkipCompletion = 1
 let g:NeoComplCache_SkipInputTime = '0.5'
 let g:NeoComplCache_SnippetsDir = $VIMFILES.'/snippets'
 " <TAB> completion.
-inoremap <expr><TAB> pumvisible() ? "\<C-n>" : "\<TAB>"
+"inoremap <expr><TAB> pumvisible() ? "\<C-n>" : "\<TAB>"
 " snippets expand key
 imap <silent> <C-e> <Plug>(neocomplcache_snippets_expand)
 smap <silent> <C-e> <Plug>(neocomplcache_snippets_expand)
@@ -293,8 +306,8 @@ set t_Co=256
 
 func! CompileCpp()
 	exec "w"
-	if filereadable("MakeFile")
-		exec "!make"
+	if filereadable("Makefile")
+		exec "!make -j8"
 	elseif filereadable("build.sh")
 		exec "!sh ./build.sh"
 	else
@@ -306,7 +319,13 @@ func! Run()
 	if filereadable("app")
 		exec "!./app"
 	else
-		exec "!./%<"
+		let file_name = expand("%:p")
+		let file_ext = expand("%:e")
+		if file_ext == "tex"
+			exec "!evince %<.pdf"
+		else
+			exec "!./%<"
+		endif
 	endif
 endfunc
 
@@ -315,13 +334,32 @@ func! ComAndRun()
     let file_name = expand("%:p")
     let file_ext = expand("%:e")
     " vim中.号为字符串连接？
-    if file_ext == "py"
-        exec "!python ".file_name
-    else
-		call CompileCpp()
-		call Run()
-    endif
+	if filereadable("build.sh")
+		exec "!sh ./build.sh"
+	else
+		if file_ext == "py"
+				if filereadable(".py3")
+					exec "!python3 ".file_name
+				else
+					exec "!python2 ".file_name
+				endif
+		else
+			if file_ext == "asm"
+				exec "!nasm ".file_name
+			else
+				if file_ext == "tex"
+					exec "!pdflatex ".file_name
+					"exec "!evince %<.pdf"
+				else
+					call CompileCpp()
+					call Run()
+				endif
+			endif
+		endif
+	endif
 endfunc
+
+au BufRead,BufNewFile *.asm set filetype=nasm
 
 func! ComAll()
 	exec "w"
@@ -359,10 +397,11 @@ map <C-F5> :call CompileCpp()<CR>
 map <F6> :call Run()<CR>
 map <F7> :call ComAll()<CR>
 map <C-F7> :call RunApp()<CR>
-map <F9> :call Debug()<CR>
+map <F8> :call Debug()<CR>
 map <F2> ggVG"+y<CR>
 map <F3> "+p<CR>
-nmap <F10> :call UpdateCtags()<CR>
+map <F10> :call UpdateCtags()<CR>
+map <F9> :YcmForceCompileAndDiagnostics<CR>
 "vmap <c-c> "+y
 "set directory=/tmp
 
@@ -370,7 +409,7 @@ nmap <F10> :call UpdateCtags()<CR>
 
 "后面这一段会产生乱码，暂时忽略 call vundle#begin()
 
-let g:SuperTabDefaultCompletionType="context"   
+"let g:SuperTabDefaultCompletionType="context"   
 
 let g:ycm_confirm_extra_conf = 0
 " 自动补全配置
@@ -384,9 +423,9 @@ inoremap <expr> <PageDown> pumvisible() ? "\<PageDown>\<C-p>\<C-n>" : "\<PageDow
 inoremap <expr> <PageUp>   pumvisible() ? "\<PageUp>\<C-p>\<C-n>" : "\<PageUp>"
 
 "youcompleteme  默认tab  s-tab 和自动补全冲突
-"let g:ycm_key_list_select_completion=['<c-n>']
+let g:ycm_key_list_select_completion=['<c-n>']
 let g:ycm_key_list_select_completion = ['<Down>']
-"let g:ycm_key_list_previous_completion=['<c-p>']
+let g:ycm_key_list_previous_completion=['<c-p>']
 let g:ycm_key_list_previous_completion = ['<Up>']
 let g:ycm_confirm_extra_conf=0 "关闭加载.ycm_extra_conf.py提示
 
@@ -394,7 +433,6 @@ let g:ycm_collect_identifiers_from_tags_files=1 " 开启 YCM 基于标签引擎
 let g:ycm_min_num_of_chars_for_completion=2 " 从第2个键入字符就开始罗列匹配项
 let g:ycm_cache_omnifunc=0  " 禁止缓存匹配项,每次都重新生成匹配项
 let g:ycm_seed_identifiers_with_syntax=1    " 语法关键字补全
-nnoremap <F9> :YcmForceCompileAndDiagnostics<CR>
 "nnoremap <leader>lo :lopen<CR> "open locationlist
 "nnoremap <leader>lc :lclose<CR>    "close locationlist
 inoremap <leader><leader> <C-x><C-o>
@@ -405,6 +443,9 @@ let g:ycm_complete_in_comments = 1
 let g:ycm_complete_in_strings = 1
 "注释和字符串中的文字也会被收入补全
 let g:ycm_collect_identifiers_from_comments_and_strings = 0
+let g:ycm_global_ycm_extra_conf = '~/.ycm_extra_conf.py'
+nnoremap <leader>jd :YcmCompleter GoToDefinitionElseDeclaration<CR>
+let g:ycm_collect_identifiers_from_tag_files = 1
 
 set completeopt=menu
 
@@ -445,3 +486,9 @@ nnoremap <C-l> :TlistToggle<CR>
 Bundle 'scrooloose/nerdtree'
 nnoremap <F4> :NERDTreeMirror<CR>
 nnoremap <F4> :NERDTreeToggle<CR>
+
+Bundle "davidhalter/jedi"
+
+set mouse-=a
+"set textwidth=1024
+set wrap
