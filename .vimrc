@@ -1,3 +1,4 @@
+let mapleader=','
 set nocompatible
 source $VIMRUNTIME/vimrc_example.vim
 source $VIMRUNTIME/mswin.vim
@@ -64,6 +65,7 @@ set nobackup                " 覆盖文件时不备份
 
 set autochdir               " 自动切换当前目录为当前文件所在的目录
 filetype plugin indent on   " 开启插件
+filetype plugin on
 set backupcopy=yes          " 设置备份时的行为为覆盖
 set ignorecase smartcase    " 搜索时忽略大小写，但在有一个或以上大写字母时仍保持对大小写敏感
 set nowrapscan              " 禁止在搜索到文件两端时重新搜索
@@ -218,8 +220,8 @@ let Tlist_Compact_Format = 1
 " r 递归刷新当前目录             R 递归刷新当前根目录
 "-----------------------------------------------------------------
 " F3 NERDTree 切换
-map <F3> :NERDTreeToggle<CR>
-imap <F3> <ESC>:NERDTreeToggle<CR>
+"map <F3> :NERDTreeToggle<CR>
+"imap <F3> <ESC>:NERDTreeToggle<CR>
 
 
 "-----------------------------------------------------------------
@@ -337,22 +339,30 @@ func! ComAndRun()
 	if filereadable("build.sh")
 		exec "!sh ./build.sh"
 	else
-		if file_ext == "py"
-				if filereadable(".py3")
-					exec "!python3 ".file_name
-				else
-					exec "!python2 ".file_name
-				endif
+		if filereadable("../build.sh")
+			exec "!cd .. && sh ./build.sh"
 		else
-			if file_ext == "asm"
-				exec "!nasm ".file_name
+			if file_ext == "py"
+					if filereadable(".py3")
+						exec "!python3 ".file_name
+					else
+						exec "!python2 ".file_name
+					endif
 			else
-				if file_ext == "tex"
-					exec "!pdflatex ".file_name
-					"exec "!evince %<.pdf"
+				if file_ext == "asm"
+					exec "!nasm ".file_name
 				else
-					call CompileCpp()
-					call Run()
+					if file_ext == "sh"
+						exec "!sh ".file_name
+					else
+						if file_ext == "tex"
+							exec "!pdflatex ".file_name
+							"exec "!evince %<.pdf"
+						else
+							call CompileCpp()
+							call Run()
+						endif
+					endif
 				endif
 			endif
 		endif
@@ -473,8 +483,8 @@ set statusline+=%#warningmsg#
 set statusline+=%{SyntasticStatuslineFlag()}
 set statusline+=%*
 
-Bundle 'msanders/snipmate.vim'
-Bundle 'tmhedberg/matchit'
+"Bundle 'msanders/snipmate.vim'
+"Bundle 'tmhedberg/matchit'
 Bundle 'bling/vim-airline'
 let g:airline_theme="luna" 
 
@@ -486,9 +496,40 @@ nnoremap <C-l> :TlistToggle<CR>
 Bundle 'scrooloose/nerdtree'
 nnoremap <F4> :NERDTreeMirror<CR>
 nnoremap <F4> :NERDTreeToggle<CR>
+"Bundle "davidhalter/jedi"
+"let g:jedi#goto_command = "<leader>d"
+"let g:jedi#goto_assignments_command = "<leader>g"
+"let g:jedi#goto_definitions_command = ""
+"let g:jedi#documentation_command = "K"
+"let g:jedi#usages_command = "<leader>n"
+"let g:jedi#completions_command = "<C-Space>"
+"let g:jedi#rename_command = "<leader>r"
 
-Bundle "davidhalter/jedi"
+
+"Bundle 'rkulla/pydiction'
+"let g:pydiction_location = '~/.vim/bundle/pydiction/complete-dict'
+
+" Bundle 'christoomey/vim-run-interactive' 
+" Run commands that require an interactive shell
+" nnoremap <Leader>r :RunInInteractiveShell<space>
+
+Bundle 'pbrisbin/vim-mkdir'
+"Bundle 'godlygeek/tabular'
+"Bundle 'suan/vim-instant-markdown'
+"Bundle 'skywind3000/vimmake'
+"let g:vimmake_mode = { 'gcc':'quickfix', 'run': 'async' }
+
+"Bundle 'skywind3000/asyncrun.vim'
 
 set mouse-=a
-"set textwidth=1024
+set textwidth=512
 set wrap
+
+set tags=tags;/
+nmap    w=  :resize +3<CR>
+nmap    w-  :resize -3<CR>
+nmap    w,  :vertical resize -3<CR>
+nmap    w.  :vertical resize +3<CR>
+
+"python 代码折叠
+set foldmethod=indent
