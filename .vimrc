@@ -30,7 +30,7 @@ function MyDiff()
 endfunction
 
 if has("win32")
-	let $VIMFILES = $VIM.'/vimfiles'
+    let $VIMFILES = $VIM.'/vimfiles'
 else
     let $VIMFILES = $HOME.'/.vim'
 endif
@@ -61,6 +61,8 @@ set shiftwidth=4            " 设定 << 和 >> 命令移动时的宽度为 4
 set softtabstop=4           " 使得按退格键时可以一次删掉 4 个空格
 set tabstop=4               " 设定 tab 长度为 4
 set nobackup                " 覆盖文件时不备份
+set ts=4
+set expandtab
 
 
 set autochdir               " 自动切换当前目录为当前文件所在的目录
@@ -154,7 +156,7 @@ nnoremap <leader>4 :set filetype=php<CR>
 let html_use_css=1
 
 " Python 文件的一般设置，比如不要 tab 等
-autocmd FileType python set tabstop=4 shiftwidth=4 expandtab
+" autocmd FileType python set tabstop=4 shiftwidth=4 expandtab
 autocmd FileType python map <F12> :!python %<CR>
 
 " 选中状态下 Ctrl+c 复制
@@ -307,81 +309,85 @@ smap <silent> <C-e> <Plug>(neocomplcache_snippets_expand)
 set t_Co=256
 
 func! CompileCpp()
-	exec "w"
-	if filereadable("Makefile")
-		exec "!make -j8"
-	elseif filereadable("build.sh")
-		exec "!sh ./build.sh"
-	else
-		exec "!clang++ % -o %< -g  -std=c++11 -Wno-invalid-source-encoding"
-	endif
+    exec "w"
+    if filereadable("Makefile")
+        exec "!make -j8"
+    elseif filereadable("build.sh")
+        exec "!sh ./build.sh"
+    else
+        exec "!g++ % -o %< -g -lpthread -std=c++11 -Wno-invalid-source-encoding"
+    endif
 endfunc
 
 func! Run()
-	if filereadable("app")
-		exec "!./app"
-	else
-		let file_name = expand("%:p")
-		let file_ext = expand("%:e")
-		if file_ext == "tex"
-			exec "!evince %<.pdf"
-		else
-			exec "!./%<"
-		endif
-	endif
+    if filereadable("app")
+        exec "!./app"
+    else
+        let file_name = expand("%:p")
+        let file_ext = expand("%:e")
+        if file_ext == "tex"
+            exec "!evince %<.pdf"
+        else
+            exec "!./%<"
+        endif
+    endif
 endfunc
 
 func! ComAndRun()
-	exec "w"
+    exec "w"
     let file_name = expand("%:p")
     let file_ext = expand("%:e")
     " vim中.号为字符串连接？
-	if filereadable("build.sh")
-		exec "!sh ./build.sh"
-	else
-		if filereadable("../build.sh")
-			exec "!cd .. && sh ./build.sh"
-		else
-			if file_ext == "py"
-					if filereadable(".py3")
-						exec "!python3 ".file_name
-					else
-						exec "!python2 ".file_name
-					endif
-			else
-				if file_ext == "asm"
-					exec "!nasm ".file_name
-				else
-					if file_ext == "sh"
-						exec "!sh ".file_name
-					else
-						if file_ext == "tex"
-							exec "!pdflatex ".file_name
-							"exec "!evince %<.pdf"
-						else
-							call CompileCpp()
-							call Run()
-						endif
-					endif
-				endif
-			endif
-		endif
-	endif
+    if filereadable("build.sh")
+        exec "!sh ./build.sh"
+    else
+        if filereadable("../build.sh")
+            exec "!cd .. && sh ./build.sh"
+        else
+            if file_ext == "py"
+                    if filereadable(".py3")
+                        exec "!python3 ".file_name
+                    else
+                        exec "!python2 ".file_name
+                    endif
+            else
+                if file_ext == "asm"
+                    exec "!nasm ".file_name
+                else
+                    if file_ext == "sh"
+                        exec "!sh ".file_name
+                    else
+                        if file_ext == "tex"
+                            exec "!pdflatex ".file_name
+                            "exec "!evince %<.pdf"
+                        else
+                            if file_ext == "m"
+                                exec "!octave ".file_name 
+                            else
+                                call CompileCpp()
+                                call Run()
+                            endif
+                        endif
+                    endif
+                endif
+            endif
+        endif
+    endif
 endfunc
 
 au BufRead,BufNewFile *.asm set filetype=nasm
 
 func! ComAll()
-	exec "w"
-	exec "!clang++ *.cpp -o app -g -std=c++11 -Wno-invalid-source-encoding"
+    exec "w"
+    exec "!g++ *.cpp -o app -g -lpthread -std=c++11 -Wno-invalid-source-encoding"
 endfunc
 
 func! Debug()
-	if filereadable("app")
-		exec "!gdb app"
-	else
-		exec "!gdb %<"
-	endif
+    if filereadable("app")
+        exec "!gdb app"
+    else
+        exec "!gdb %<"
+    endif
 endfunc
 
 
@@ -459,7 +465,7 @@ let g:ycm_collect_identifiers_from_tag_files = 1
 
 set completeopt=menu
 
-set rtp+=~/.vim/bundle/vundle/ 
+set rtp+=~/.vim/bundle/Vundle.vim 
 call vundle#rc()
 Bundle 'gmarik/vundle'
 
@@ -472,7 +478,7 @@ let g:multi_cursor_skip_key='<C-x>'
 let g:multi_cursor_quit_key='<Esc>'
 
 "语法检查
-Bundle 'scrooloose/syntastic'
+"Bundle 'scrooloose/syntastic'
 " configure syntastic syntax checking to check on open as well as save
 let g:syntastic_check_on_open=1
 let g:syntastic_html_tidy_ignore_errors=[" proprietary attribute \"ng-"]
@@ -533,3 +539,6 @@ nmap    w.  :vertical resize +3<CR>
 
 "python 代码折叠
 set foldmethod=indent
+
+au BufNewFile,BufRead *.cu set ft=cuda
+au BufNewFile,BufRead *.cuh set ft=cuda
