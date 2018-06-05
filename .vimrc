@@ -534,6 +534,7 @@ Bundle 'pbrisbin/vim-mkdir'
 "let g:vimmake_mode = { 'gcc':'quickfix', 'run': 'async' }
 
 "Bundle 'skywind3000/asyncrun.vim'
+Bundle 'vim-scripts/taglist.vim'
 
 set mouse-=a
 set textwidth=512
