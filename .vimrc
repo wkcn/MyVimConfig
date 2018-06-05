@@ -315,8 +315,12 @@ func! CompileCpp()
     elseif filereadable("build.sh")
         exec "!sh ./build.sh"
     else
-        exec "!g++ % -o %< -g -lpthread -std=c++11 -Wno-invalid-source-encoding"
+        exec "!g++ % -o %< -g -lpthread -std=c++11"
     endif
+endfunc
+
+func! CompileRust()
+    exec "!rustc % -o %<"
 endfunc
 
 func! Run()
@@ -364,7 +368,11 @@ func! ComAndRun()
                             if file_ext == "m"
                                 exec "!octave ".file_name 
                             else
-                                call CompileCpp()
+                                if file_ext == 'rs'
+                                    call CompileRust()
+                                else
+                                    call CompileCpp()
+                                endif
                                 call Run()
                             endif
                         endif
@@ -379,7 +387,7 @@ au BufRead,BufNewFile *.asm set filetype=nasm
 
 func! ComAll()
     exec "w"
-    exec "!g++ *.cpp -o app -g -lpthread -std=c++11 -Wno-invalid-source-encoding"
+    exec "!g++ *.cpp -o app -g -lpthread -std=c++11"
 endfunc
 
 func! Debug()
