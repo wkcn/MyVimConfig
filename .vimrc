@@ -53,7 +53,7 @@ let T_DATE_FORMAT="%Y-%m-%d %H:%m:%S"
 set nocompatible            " 关闭 vi 兼容模式
 
 syntax on                   " 自动语法高亮
-colorscheme mirai             " 设定配色方案
+"colorscheme mirai             " 设定配色方案
 set number                  " 显示行号
 "set cursorline              " 突出显示当前行
 set ruler                   " 打开状态栏标尺
@@ -315,7 +315,7 @@ func! CompileCpp()
     elseif filereadable("build.sh")
         exec "!sh ./build.sh"
     else
-        exec "!g++ % -o %< -g -lpthread -std=c++11"
+        exec "!g++ % -o %< -g -lpthread -std=c++17"
     endif
 endfunc
 
@@ -387,7 +387,7 @@ au BufRead,BufNewFile *.asm set filetype=nasm
 
 func! ComAll()
     exec "w"
-    exec "!g++ *.cpp -o app -g -lpthread -std=c++11"
+    exec "!g++ *.cpp -o app -g -lpthread -std=c++17"
 endfunc
 
 func! Debug()
@@ -534,7 +534,10 @@ Bundle 'pbrisbin/vim-mkdir'
 "let g:vimmake_mode = { 'gcc':'quickfix', 'run': 'async' }
 
 "Bundle 'skywind3000/asyncrun.vim'
-Bundle 'vim-scripts/taglist.vim'
+Bundle 'morhetz/gruvbox'
+colorscheme gruvbox
+set bg=dark
+
 
 set mouse-=a
 set textwidth=512
