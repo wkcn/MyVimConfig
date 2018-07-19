@@ -315,12 +315,8 @@ func! CompileCpp()
     elseif filereadable("build.sh")
         exec "!sh ./build.sh"
     else
-        exec "!g++ % -o %< -g -lpthread -std=c++17"
+        exec "!g++ % -o %< -g -lpthread -std=c++11 -Wno-invalid-source-encoding"
     endif
-endfunc
-
-func! CompileRust()
-    exec "!rustc % -o %<"
 endfunc
 
 func! Run()
@@ -368,12 +364,12 @@ func! ComAndRun()
                             if file_ext == "m"
                                 exec "!octave ".file_name 
                             else
-                                if file_ext == 'rs'
-                                    call CompileRust()
+                                if file_ext == "jl"
+                                    exec "!julia ".file_name
                                 else
                                     call CompileCpp()
+                                    call Run()
                                 endif
-                                call Run()
                             endif
                         endif
                     endif
@@ -387,7 +383,7 @@ au BufRead,BufNewFile *.asm set filetype=nasm
 
 func! ComAll()
     exec "w"
-    exec "!g++ *.cpp -o app -g -lpthread -std=c++17"
+    exec "!g++ *.cpp -o app -g -lpthread -std=c++11 -Wno-invalid-source-encoding"
 endfunc
 
 func! Debug()
@@ -554,3 +550,14 @@ set foldmethod=indent
 
 au BufNewFile,BufRead *.cu set ft=cuda
 au BufNewFile,BufRead *.cuh set ft=cuda
+
+:nn <M-1> 1gt
+:nn <M-2> 2gt
+:nn <M-3> 3gt
+:nn <M-4> 4gt
+:nn <M-5> 5gt
+:nn <M-6> 6gt
+:nn <M-7> 7gt
+:nn <M-8> 8gt
+:nn <M-9> 9gt
+:nn <M-0> :tablast<CR>
