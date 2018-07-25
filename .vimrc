@@ -343,38 +343,26 @@ func! ComAndRun()
     else
         if filereadable("../build.sh")
             exec "!cd .. && sh ./build.sh"
-        else
-            if file_ext == "py"
-                    if filereadable(".py3")
-                        exec "!python3 ".file_name
-                    else
-                        exec "!python2 ".file_name
-                    endif
+        elseif file_ext == "py"
+            if filereadable(".py3")
+                exec "!python3 ".file_name
             else
-                if file_ext == "asm"
-                    exec "!nasm ".file_name
-                else
-                    if file_ext == "sh"
-                        exec "!sh ".file_name
-                    else
-                        if file_ext == "tex"
-                            exec "!pdflatex ".file_name
-                            "exec "!evince %<.pdf"
-                        else
-                            if file_ext == "m"
-                                exec "!octave ".file_name 
-                            else
-                                if file_ext == "jl"
-                                    exec "!julia ".file_name
-                                else
-                                    call CompileCpp()
-                                    call Run()
-                                endif
-                            endif
-                        endif
-                    endif
-                endif
+                exec "!python2 ".file_name
             endif
+        elseif file_ext == "asm"
+            exec "!nasm ".file_name
+        elseif file_ext == "sh"
+            exec "!sh ".file_name
+        elseif file_ext == "tex"
+            exec "!pdflatex ".file_name
+            "exec "!evince %<.pdf"
+        elseif file_ext == "m"
+            exec "!octave ".file_name
+        elseif file_ext == "jl"
+            exec "!julia ".file_name
+        else
+            call CompileCpp()
+            call Run()
         endif
     endif
 endfunc
@@ -533,7 +521,6 @@ Bundle 'pbrisbin/vim-mkdir'
 Bundle 'morhetz/gruvbox'
 colorscheme gruvbox
 set bg=dark
-
 
 set mouse-=a
 set textwidth=512
