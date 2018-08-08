@@ -522,6 +522,8 @@ Bundle 'morhetz/gruvbox'
 colorscheme gruvbox
 set bg=dark
 
+Bundle 'vim-scripts/taglist.vim'
+
 set mouse-=a
 set textwidth=512
 set wrap
