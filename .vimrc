@@ -200,6 +200,7 @@ let Tlist_Process_File_Always = 1
 let Tlist_Display_Prototype = 0
 let Tlist_Compact_Format = 1
 
+call plug#begin('~/.vim/plugged')
 
 "-----------------------------------------------------------------
 " plugin - mark.vim 给各种tags标记不同的颜色，便于观看调式的插件。
@@ -382,23 +383,18 @@ func! Debug()
     endif
 endfunc
 
-
-
-function! UpdateCtags()
-    let curdir=getcwd()
-    while !filereadable("./tags")
-        cd ..
-        if getcwd() == "/"
-            break
-        endif
-    endwhile
-    if filewritable("./tags")
-        !ctags -R --file-scope=yes --langmap=c:+.h --languages=c,c++ --links=yes --c-kinds=+p --c++-kinds=+p --fields=+iaS --extra=+q
-        TlistUpdate
-    endif
-    execute ":cd " . curdir
+function! UpdateTab()
+    set shiftwidth=2            " 设定 << 和 >> 命令移动时的宽度为 4
+    set softtabstop=2           " 使得按退格键时可以一次删掉 4 个空格
+    set tabstop=2               " 设定 tab 长度为 4
+    set ts=2
 endfunction
 
+Plug 'skywind3000/asyncrun.vim'
+" 自动打开 quickfix window ，高度为 6
+let g:asyncrun_open = 6
+" 任务结束时候响铃提醒
+let g:asyncrun_bell = 1
 
 map <F5> :call ComAndRun()<CR>
 map <C-F5> :call CompileCpp()<CR>
@@ -408,14 +404,12 @@ map <C-F7> :call RunApp()<CR>
 map <F8> :call Debug()<CR>
 map <F2> ggVG"+y<CR>
 map <F3> "+p<CR>
-map <F10> :call UpdateCtags()<CR>
 map <F9> :YcmForceCompileAndDiagnostics<CR>
+map <C-F9> :call UpdateTab()<CR>
+" 设置 F10 打开/关闭 Quickfix 窗口
+nnoremap <F10> :call asyncrun#quickfix_toggle(6)<cr>
 "vmap <c-c> "+y
 "set directory=/tmp
-
-
-
-"后面这一段会产生乱码，暂时忽略 call vundle#begin()
 
 "let g:SuperTabDefaultCompletionType="context"   
 
@@ -457,12 +451,7 @@ let g:ycm_collect_identifiers_from_tag_files = 1
 
 set completeopt=menu
 
-set rtp+=~/.vim/bundle/Vundle.vim 
-call vundle#rc()
-Bundle 'gmarik/vundle'
-
-
-Bundle 'terryma/vim-multiple-cursors'
+Plug 'terryma/vim-multiple-cursors'
 " Default mapping
 let g:multi_cursor_next_key='<C-n>'
 let g:multi_cursor_prev_key='<C-p>'
@@ -470,7 +459,7 @@ let g:multi_cursor_skip_key='<C-x>'
 let g:multi_cursor_quit_key='<Esc>'
 
 "语法检查
-"Bundle 'scrooloose/syntastic'
+"Plug 'scrooloose/syntastic'
 " configure syntastic syntax checking to check on open as well as save
 let g:syntastic_check_on_open=1
 let g:syntastic_html_tidy_ignore_errors=[" proprietary attribute \"ng-"]
@@ -481,9 +470,33 @@ set statusline+=%#warningmsg#
 set statusline+=%{SyntasticStatuslineFlag()}
 set statusline+=%*
 
-"Bundle 'msanders/snipmate.vim'
-"Bundle 'tmhedberg/matchit'
-Bundle 'bling/vim-airline'
+" vim-gutentags 配置
+" 作者：韦易笑
+" 链接：https://www.zhihu.com/question/47691414/answer/373700711
+" gutentags 搜索工程目录的标志，碰到这些文件/目录名就停止向上一级目录递归
+Plug 'ludovicchabant/vim-gutentags'
+let g:gutentags_project_root = ['.root', '.svn', '.git', '.hg', '.project']
+
+" 所生成的数据文件的名称
+let g:gutentags_ctags_tagfile = '.tags'
+
+" 将自动生成的 tags 文件全部放入 ~/.cache/tags 目录中，避免污染工程目录
+let s:vim_tags = expand('~/.cache/tags')
+let g:gutentags_cache_dir = s:vim_tags
+
+" 配置 ctags 的参数
+let g:gutentags_ctags_extra_args = ['--fields=+niazS', '--extra=+q']
+let g:gutentags_ctags_extra_args += ['--c++-kinds=+px']
+let g:gutentags_ctags_extra_args += ['--c-kinds=+px']
+
+" 检测 ~/.cache/tags 不存在就新建
+if !isdirectory(s:vim_tags)
+   silent! call mkdir(s:vim_tags, 'p')
+endif
+
+"Plug 'msanders/snipmate.vim'
+"Plug 'tmhedberg/matchit'
+Plug 'bling/vim-airline'
 let g:airline_theme="luna" 
 
 let Tlist_Compact_Format = 1
@@ -491,44 +504,28 @@ let Tlist_GainFocus_On_ToggleOpen = 1
 let Tlist_Close_On_Select = 1
 nnoremap <C-l> :TlistToggle<CR>
 
-Bundle 'scrooloose/nerdtree'
+Plug 'scrooloose/nerdtree', { 'on':  'NERDTreeToggle' }
 nnoremap <F4> :NERDTreeMirror<CR>
 nnoremap <F4> :NERDTreeToggle<CR>
-"Bundle "davidhalter/jedi"
-"let g:jedi#goto_command = "<leader>d"
-"let g:jedi#goto_assignments_command = "<leader>g"
-"let g:jedi#goto_definitions_command = ""
-"let g:jedi#documentation_command = "K"
-"let g:jedi#usages_command = "<leader>n"
-"let g:jedi#completions_command = "<C-Space>"
-"let g:jedi#rename_command = "<leader>r"
 
+Plug 'pbrisbin/vim-mkdir'
+"Plug 'godlygeek/tabular'
+"Plug 'suan/vim-instant-markdown'
+Plug 'morhetz/gruvbox'
+Plug 'vim-scripts/taglist.vim'
 
-"Bundle 'rkulla/pydiction'
-"let g:pydiction_location = '~/.vim/bundle/pydiction/complete-dict'
+call plug#end()
 
-" Bundle 'christoomey/vim-run-interactive' 
-" Run commands that require an interactive shell
-" nnoremap <Leader>r :RunInInteractiveShell<space>
-
-Bundle 'pbrisbin/vim-mkdir'
-"Bundle 'godlygeek/tabular'
-"Bundle 'suan/vim-instant-markdown'
-"Bundle 'skywind3000/vimmake'
-"let g:vimmake_mode = { 'gcc':'quickfix', 'run': 'async' }
-
-"Bundle 'skywind3000/asyncrun.vim'
-Bundle 'morhetz/gruvbox'
 colorscheme gruvbox
 set bg=dark
 
-Bundle 'vim-scripts/taglist.vim'
+
 
 set mouse-=a
 set textwidth=512
 set wrap
 
-set tags=tags;/
+set tags=./.tags;,.tags
 nmap    w=  :resize +3<CR>
 nmap    w-  :resize -3<CR>
 nmap    w,  :vertical resize -3<CR>
