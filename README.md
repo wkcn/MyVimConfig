@@ -7,5 +7,5 @@ sh install.sh
 # Open VIM
 vim
 # Enter vim command
-:BundleInstall
+:PlugInstall
 ```

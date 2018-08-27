@@ -214,7 +214,7 @@ call plug#begin('~/.vim/plugged')
 
 "-----------------------------------------------------------------
 " plugin - NERD_tree.vim 以树状方式浏览系统中的文件和目录
-" :ERDtree 打开NERD_tree         :NERDtreeClose    关闭NERD_tree
+" :NERDtree 打开NERD_tree         :NERDtreeClose    关闭NERD_tree
 " o 打开关闭文件或者目录         t 在标签页中打开
 " T 在后台标签页中打开           ! 执行此文件
 " p 到上层目录                   P 到根目录
@@ -383,11 +383,18 @@ func! Debug()
     endif
 endfunc
 
-function! UpdateTab()
-    set shiftwidth=2            " 设定 << 和 >> 命令移动时的宽度为 4
-    set softtabstop=2           " 使得按退格键时可以一次删掉 4 个空格
-    set tabstop=2               " 设定 tab 长度为 4
+function! Tab2()
+    set shiftwidth=2            " 设定 << 和 >> 命令移动时的宽度为 2
+    set softtabstop=2           " 使得按退格键时可以一次删掉 2 个空格
+    set tabstop=2               " 设定 tab 长度为 2
     set ts=2
+endfunction
+
+function! Tab4()
+    set shiftwidth=4            " 设定 << 和 >> 命令移动时的宽度为 4
+    set softtabstop=4           " 使得按退格键时可以一次删掉 4 个空格
+    set tabstop=4               " 设定 tab 长度为 4
+    set ts=4
 endfunction
 
 Plug 'skywind3000/asyncrun.vim'
@@ -405,7 +412,6 @@ map <F8> :call Debug()<CR>
 map <F2> ggVG"+y<CR>
 map <F3> "+p<CR>
 map <F9> :YcmForceCompileAndDiagnostics<CR>
-map <C-F9> :call UpdateTab()<CR>
 " 设置 F10 打开/关闭 Quickfix 窗口
 nnoremap <F10> :call asyncrun#quickfix_toggle(6)<cr>
 "vmap <c-c> "+y
