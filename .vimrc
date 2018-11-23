@@ -327,7 +327,7 @@ func! Run()
         let file_name = expand("%:p")
         let file_ext = expand("%:e")
         if file_ext == "tex"
-            exec "!evince %<.pdf"
+            exec "!evince %<.pdf &"
         else
             exec "!./%<"
         endif
@@ -356,11 +356,13 @@ func! ComAndRun()
             exec "!sh ".file_name
         elseif file_ext == "tex"
             exec "!pdflatex ".file_name
-            "exec "!evince %<.pdf"
+            "exec "!evince %<.pdf &"
         elseif file_ext == "m"
             exec "!octave ".file_name
         elseif file_ext == "jl"
             exec "!julia ".file_name
+        elseif file_ext == "md"
+            exec "!typora ".file_name." &"
         else
             call CompileCpp()
             call Run()
@@ -369,6 +371,11 @@ func! ComAndRun()
 endfunc
 
 au BufRead,BufNewFile *.asm set filetype=nasm
+
+au BufRead,BufNewFile *.h call Tab2()
+au BufRead,BufNewFile *.c call Tab2()
+au BufRead,BufNewFile *.cu call Tab2()
+au BufRead,BufNewFile *.cpp call Tab2()
 
 func! ComAll()
     exec "w"
@@ -519,6 +526,20 @@ Plug 'pbrisbin/vim-mkdir'
 "Plug 'suan/vim-instant-markdown'
 Plug 'morhetz/gruvbox'
 Plug 'vim-scripts/taglist.vim'
+
+" Track the engine.
+Plug 'SirVer/ultisnips'
+
+" Snippets are separated from the engine. Add this if you want them:
+Plug 'honza/vim-snippets'
+
+" Trigger configuration. Do not use <tab> if you use https://github.com/Valloric/YouCompleteMe.
+let g:UltiSnipsExpandTrigger="<tab>"
+let g:UltiSnipsJumpForwardTrigger="<c-b>"
+let g:UltiSnipsJumpBackwardTrigger="<c-z>"
+
+" If you want :UltiSnipsEdit to split your window.
+let g:UltiSnipsEditSplit="vertical"
 
 call plug#end()
 
