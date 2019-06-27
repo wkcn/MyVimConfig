@@ -345,10 +345,10 @@ func! ComAndRun()
         if filereadable("../build.sh")
             exec "!cd .. && sh ./build.sh"
         elseif file_ext == "py"
-            if filereadable(".py3")
-                exec "!python3 ".file_name
-            else
+            if filereadable(".py2")
                 exec "!python2 ".file_name
+            else
+                exec "!python3 ".file_name
             endif
         elseif file_ext == "asm"
             exec "!nasm ".file_name
@@ -532,6 +532,12 @@ Plug 'SirVer/ultisnips'
 
 " Snippets are separated from the engine. Add this if you want them:
 Plug 'honza/vim-snippets'
+
+" Use release branch
+Plug 'neoclide/coc.nvim', {'branch': 'release'}
+" Or build from source code
+" Install yarn from https://yarnpkg.com
+Plug 'neoclide/coc.nvim', {'do': 'yarn install --frozen-lockfile'}
 
 " Trigger configuration. Do not use <tab> if you use https://github.com/Valloric/YouCompleteMe.
 let g:UltiSnipsExpandTrigger="<tab>"

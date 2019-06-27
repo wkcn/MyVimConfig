@@ -8,4 +8,8 @@ sh install.sh
 vim
 # Enter vim command
 :PlugInstall
+:CocInstall coc-python
+:CocInstall coc-json
+# Install ccls (pacman -S ccls) and copy the configuration: https://github.com/MaskRay/ccls/wiki/coc.nvim into `:CocConfig`
+:CocConfig
 ```
