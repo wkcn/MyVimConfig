@@ -1,3 +1,6 @@
+set runtimepath^=~/.vim runtimepath+=~/.vim/after
+let &packpath=&runtimepath
+
 let mapleader=','
 set nocompatible
 source $VIMRUNTIME/vimrc_example.vim
@@ -527,9 +530,6 @@ Plug 'pbrisbin/vim-mkdir'
 Plug 'morhetz/gruvbox'
 Plug 'vim-scripts/taglist.vim'
 
-" Track the engine.
-Plug 'SirVer/ultisnips'
-
 " Snippets are separated from the engine. Add this if you want them:
 Plug 'honza/vim-snippets'
 
@@ -538,14 +538,7 @@ Plug 'neoclide/coc.nvim', {'branch': 'release'}
 " Or build from source code
 " Install yarn from https://yarnpkg.com
 Plug 'neoclide/coc.nvim', {'do': 'yarn install --frozen-lockfile'}
-
-" Trigger configuration. Do not use <tab> if you use https://github.com/Valloric/YouCompleteMe.
-let g:UltiSnipsExpandTrigger="<tab>"
-let g:UltiSnipsJumpForwardTrigger="<c-b>"
-let g:UltiSnipsJumpBackwardTrigger="<c-z>"
-
-" If you want :UltiSnipsEdit to split your window.
-let g:UltiSnipsEditSplit="vertical"
+"Plug 'zxqfl/tabnine-vim'
 
 call plug#end()
 
@@ -580,3 +573,26 @@ au BufNewFile,BufRead *.cuh set ft=cuda
 :nn <M-8> 8gt
 :nn <M-9> 9gt
 :nn <M-0> :tablast<CR>
+
+" for easy using sliver search
+" author: ballack_linux
+" 原文链接：https://blog.csdn.net/ballack_linux/article/details/53187283
+nmap <leader>f :norm yiw<CR>:!ag -t -Q "<C-R>""<CR>
+
+
+" Locate and return character "above" current cursor position.
+function! LookUpwards()
+    let column_num = virtcol('.')
+    let target_pattern = '\%' . column_num . 'v.'
+    let target_line_num = search(target_pattern . '*\S', 'bnW')
+
+
+    if !target_line_num
+        return ""
+    else
+        return matchstr(getline(target_line_num), target_pattern)
+    endif
+endfunction
+
+
+imap <silent> <C-Y> <C-R><C-R>=LookUpwards()<CR>
