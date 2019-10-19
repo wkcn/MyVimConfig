@@ -544,7 +544,7 @@ Plug 'neoclide/coc.nvim', {'branch': 'release'}
 " Or build from source code
 " Install yarn from https://yarnpkg.com
 Plug 'neoclide/coc.nvim', {'do': 'yarn install --frozen-lockfile'}
-"Plug 'zxqfl/tabnine-vim'
+Plug 'zxqfl/tabnine-vim'
 nnoremap <silent> K :call CocActionAsync('doHover')<cr>
 
 call plug#end()
