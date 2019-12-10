@@ -367,6 +367,9 @@ func! ComAndRun()
             exec "!julia ".file_name
         elseif file_ext == "md"
             exec "!typora ".file_name." &"
+        elseif file_ext == "rs"
+            exec "!rustc ".file_name
+            call Run()
         else
             call CompileCpp()
             call Run()
@@ -379,7 +382,10 @@ au BufRead,BufNewFile *.asm set filetype=nasm
 au BufRead,BufNewFile *.h call Tab2()
 au BufRead,BufNewFile *.c call Tab2()
 au BufRead,BufNewFile *.cu call Tab2()
+au BufRead,BufNewFile *.cuh call Tab2()
 au BufRead,BufNewFile *.cpp call Tab2()
+au BufRead,BufNewFile *.cc call Tab2()
+au BufRead,BufNewFile *.hpp call Tab2()
 
 func! ComAll()
     exec "w"
@@ -422,7 +428,7 @@ map <C-F7> :call RunApp()<CR>
 map <F8> :call Debug()<CR>
 map <F2> ggVG"+y<CR>
 map <F3> "+p<CR>
-map <F9> :YcmForceCompileAndDiagnostics<CR>
+map <F9> :%s/\s\+$//<CR>
 " 设置 F10 打开/关闭 Quickfix 窗口
 nnoremap <F10> :call asyncrun#quickfix_toggle(6)<cr>
 "vmap <c-c> "+y
@@ -539,7 +545,8 @@ Plug 'neoclide/coc.nvim', {'branch': 'release'}
 " Or build from source code
 " Install yarn from https://yarnpkg.com
 Plug 'neoclide/coc.nvim', {'do': 'yarn install --frozen-lockfile'}
-"Plug 'zxqfl/tabnine-vim'
+Plug 'zxqfl/tabnine-vim'
+nnoremap <silent> K :call CocActionAsync('doHover')<cr>
 
 call plug#end()
 
