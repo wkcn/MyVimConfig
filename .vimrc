@@ -1,3 +1,4 @@
+set encoding=utf-8
 set runtimepath^=~/.vim runtimepath+=~/.vim/after
 let &packpath=&runtimepath
 
