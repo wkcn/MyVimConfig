@@ -181,28 +181,6 @@ autocmd filetype php set dictionary=$VIMFILES/dict/php.dict
 " \bv 左右方式查看   \bs 上下方式查看
 "-----------------------------------------------------------------
 
-
-"-----------------------------------------------------------------
-" plugin - taglist.vim  查看函数列表，需要ctags程序
-" F4 打开隐藏taglist窗口
-"-----------------------------------------------------------------
-if MySys() == "windows"                " 设定windows系统中ctags程序的位置
-    let Tlist_Ctags_Cmd = '"'.$VIMRUNTIME.'/ctags.exe"'
-elseif MySys() == "linux"              " 设定windows系统中ctags程序的位置
-    let Tlist_Ctags_Cmd = '/usr/bin/ctags'
-endif
-let Tlist_Show_One_File = 1            " 不同时显示多个文件的tag，只显示当前文件的
-let Tlist_Exit_OnlyWindow = 1          " 如果taglist窗口是最后一个窗口，则退出vim
-let Tlist_Use_Right_Window = 1         " 在右侧窗口中显示taglist窗口
-let Tlist_File_Fold_Auto_Close=1       " 自动折叠当前非编辑文件的方法列表
-let Tlist_Auto_Open = 0
-let Tlist_Auto_Update = 1
-let Tlist_Hightlight_Tag_On_BufEnter = 1
-let Tlist_Enable_Fold_Column = 0
-let Tlist_Process_File_Always = 1
-let Tlist_Display_Prototype = 0
-let Tlist_Compact_Format = 1
-
 call plug#begin('~/.vim/plugged')
 
 "-----------------------------------------------------------------
@@ -329,7 +307,7 @@ func! Run()
     else
         let file_name = expand("%:p")
         let file_ext = expand("%:e")
-        if file_ext == "tex"
+        if file_ext == "tex" || file_ext == "xtex"
             exec "!evince %<.pdf &"
         else
             exec "!./%<"
@@ -362,6 +340,9 @@ func! ComAndRun()
             exec "!sh ".file_name
         elseif file_ext == "tex"
             exec "!pdflatex ".file_name
+            "exec "!evince %<.pdf &"
+        elseif file_ext == "xtex"
+            exec "!xelatex ".file_name
             "exec "!evince %<.pdf &"
         elseif file_ext == "m"
             exec "!octave ".file_name
@@ -518,10 +499,7 @@ endif
 Plug 'bling/vim-airline'
 let g:airline_theme="luna" 
 
-let Tlist_Compact_Format = 1
-let Tlist_GainFocus_On_ToggleOpen = 1
-let Tlist_Close_On_Select = 1
-nnoremap <C-l> :TlistToggle<CR>
+nnoremap <C-l> :TagbarToggle<CR>
 
 Plug 'scrooloose/nerdtree', { 'on':  'NERDTreeToggle' }
 nnoremap <F4> :NERDTreeMirror<CR>
@@ -531,7 +509,7 @@ Plug 'pbrisbin/vim-mkdir'
 "Plug 'godlygeek/tabular'
 "Plug 'suan/vim-instant-markdown'
 Plug 'morhetz/gruvbox'
-Plug 'vim-scripts/taglist.vim'
+Plug 'preservim/tagbar'
 
 " Snippets are separated from the engine. Add this if you want them:
 Plug 'honza/vim-snippets'
@@ -730,6 +708,7 @@ set foldmethod=indent
 
 au BufNewFile,BufRead *.cu set ft=cuda
 au BufNewFile,BufRead *.cuh set ft=cuda
+au BufNewFile,BufRead *.xtex set ft=tex
 
 :nn <M-1> 1gt
 :nn <M-2> 2gt
