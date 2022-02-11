@@ -523,6 +523,7 @@ Plug 'neoclide/coc.nvim', {'branch': 'release'}
 nnoremap <silent> K :call CocActionAsync('doHover')<cr>
 
 Plug 'gioele/vim-autoswap'
+Plug 'powerman/vim-plugin-AnsiEsc'
 
 " TextEdit might fail if hidden is not set.
 set hidden
@@ -682,6 +683,7 @@ nnoremap <silent><nowait> <space>j  :<C-u>CocNext<CR>
 nnoremap <silent><nowait> <space>k  :<C-u>CocPrev<CR>
 " Resume latest coc list.
 nnoremap <silent><nowait> <space>p  :<C-u>CocListResume<CR>
+
 let g:coc_disable_startup_warning = 1
 
 call plug#end()
