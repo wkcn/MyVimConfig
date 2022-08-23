@@ -740,3 +740,4 @@ endfunction
 
 
 imap <silent> <C-Y> <C-R><C-R>=LookUpwards()<CR>
+let g:coc_disable_startup_warning = 1
