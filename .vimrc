@@ -295,7 +295,7 @@ func! CompileCpp()
     if filereadable("Makefile")
         exec "!make -j8"
     elseif filereadable("build.sh")
-        exec "!sh ./build.sh"
+        exec "!bash ./build.sh"
     else
         exec "!g++ % -o %< -g -lpthread -std=c++17 -Wno-invalid-source-encoding"
     endif
@@ -321,10 +321,10 @@ func! ComAndRun()
     let file_ext = expand("%:e")
     " vim中.号为字符串连接？
     if filereadable("build.sh")
-        exec "!sh ./build.sh"
+        exec "!bash ./build.sh"
     else
         if filereadable("../build.sh")
-            exec "!cd .. && sh ./build.sh"
+            exec "!cd .. && bash ./build.sh"
         elseif file_ext == "py"
             if filereadable(".py2")
                 exec "!python2 ".file_name
@@ -337,7 +337,7 @@ func! ComAndRun()
         elseif file_ext == "asm"
             exec "!nasm ".file_name
         elseif file_ext == "sh"
-            exec "!sh ".file_name
+            exec "!bash ".file_name
         elseif file_ext == "tex"
             exec "!pdflatex ".file_name
             "exec "!evince %<.pdf &"
@@ -527,7 +527,7 @@ nnoremap <silent> K :call CocActionAsync('doHover')<cr>
 
 Plug 'gioele/vim-autoswap'
 Plug 'powerman/vim-plugin-AnsiEsc'
-" Plug 'github/copilot.vim'
+Plug 'github/copilot.vim'
 
 " TextEdit might fail if hidden is not set.
 set hidden
@@ -741,3 +741,4 @@ endfunction
 
 imap <silent> <C-Y> <C-R><C-R>=LookUpwards()<CR>
 let g:coc_disable_startup_warning = 1
+set mouse=
