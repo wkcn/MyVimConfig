@@ -8,37 +8,7 @@ source $VIMRUNTIME/vimrc_example.vim
 source $VIMRUNTIME/mswin.vim
 behave mswin
 
-set diffexpr=MyDiff()
-function MyDiff()
-  let opt = '-a --binary '
-  if &diffopt =~ 'icase' | let opt = opt . '-i ' | endif
-  if &diffopt =~ 'iwhite' | let opt = opt . '-b ' | endif
-  let arg1 = v:fname_in
-  if arg1 =~ ' ' | let arg1 = '"' . arg1 . '"' | endif
-  let arg2 = v:fname_new
-  if arg2 =~ ' ' | let arg2 = '"' . arg2 . '"' | endif
-  let arg3 = v:fname_out
-  if arg3 =~ ' ' | let arg3 = '"' . arg3 . '"' | endif
-  let eq = ''
-  if $VIMRUNTIME =~ ' '
-    if &sh =~ '\<cmd'
-      let cmd = '""' . $VIMRUNTIME . '\diff"'
-      let eq = '"'
-    else
-      let cmd = substitute($VIMRUNTIME, ' ', '" ', '') . '\diff"'
-    endif
-  else
-    let cmd = $VIMRUNTIME . '\diff'
-  endif
-  silent execute '!' . cmd . ' ' . opt . arg1 . ' ' . arg2 . ' > ' . arg3 . eq
-endfunction
-
-if has("win32")
-    let $VIMFILES = $VIM.'/vimfiles'
-else
-    let $VIMFILES = $HOME.'/.vim'
-endif
-
+let $VIMFILES = $HOME.'/.vim'
 
 set fencs=utf-8,gbk
 "Persistent Undo
@@ -47,7 +17,6 @@ set undodir=$VIMFILES/\_undodir
 set undolevels=1000 "maximum number of changes that can be undone
 
 
-"原作者: ChenLei
 "========================================================================="
 let template_load=1
 let template_tags_replacing=1
@@ -57,7 +26,6 @@ let T_DATE_FORMAT="%Y-%m-%d %H:%m:%S"
 set nocompatible            " 关闭 vi 兼容模式
 
 syntax on                   " 自动语法高亮
-"colorscheme mirai             " 设定配色方案
 set number                  " 显示行号
 "set cursorline              " 突出显示当前行
 set ruler                   " 打开状态栏标尺
@@ -67,7 +35,6 @@ set tabstop=4               " 设定 tab 长度为 4
 set nobackup                " 覆盖文件时不备份
 set ts=4
 set expandtab
-
 
 set autochdir               " 自动切换当前目录为当前文件所在的目录
 filetype plugin indent on   " 开启插件
@@ -102,17 +69,6 @@ set foldmethod=syntax       " 设置语法折叠
 nnoremap <space> @=((foldclosed(line('.')) < 0) ? 'zc' : 'zo')<CR>
                             " 用空格键来开关折叠
 
-
-
-" return OS type, eg: windows, or linux, mac, et.st..
-function! MySys()
-    if has("win16") || has("win32") || has("win64") || has("win95")
-        return "windows"
-    elseif has("unix")
-        return "linux"
-    endif
-endfunction
-
 " Buffers操作快捷方式!
 nnoremap <C-RETURN> :bnext<CR>
 nnoremap <C-S-RETURN> :bprevious<CR>
@@ -122,13 +78,11 @@ nnoremap <C-TAB> :tabnext<CR>
 nnoremap <C-S-TAB> :tabprev<CR>
 
 "关于tab的快捷键
-" map tn :tabnext<cr>
-" map tp :tabprevious<cr>
-" map td :tabnew .<cr>
-" map te :tabedit
-" map tc :tabclose<cr>
-
-
+map tn :tabnext<cr>
+map tp :tabprevious<cr>
+map td :tabnew .<cr>
+map te :tabedit
+map tc :tabclose<cr>
 
 "窗口分割时,进行切换的按键热键需要连接两次,比如从下方窗口移动
 "光标到上方窗口,需要<c-w><c-w>k,非常麻烦,现在重映射为<c-k>,切换的
@@ -154,26 +108,12 @@ nnoremap <leader>4 :set filetype=php<CR>
 " map <C-x>p <ESC>:cp<CR>
 " map <C-x>c <ESC>:cc<CR>
 
-
-" 让 Tohtml 产生有 CSS 语法的 html
-" syntax/2html.vim，可以用:runtime! syntax/2html.vim
-let html_use_css=1
-
 " Python 文件的一般设置，比如不要 tab 等
 " autocmd FileType python set tabstop=4 shiftwidth=4 expandtab
 autocmd FileType python map <F12> :!python %<CR>
 
 " 选中状态下 Ctrl+c 复制
 vmap <C-c> "+y
-
-" 打开javascript折叠
-let b:javascript_fold=1
-" 打开javascript对dom、html和css的支持
-let javascript_enable_domhtmlcss=1
-" 设置字典 ~/.vim/dict/文件的路径
-autocmd filetype javascript set dictionary=$VIMFILES/dict/javascript.dict
-autocmd filetype css set dictionary=$VIMFILES/dict/css.dict
-autocmd filetype php set dictionary=$VIMFILES/dict/php.dict
 
 "-----------------------------------------------------------------
 " plugin - bufexplorer.vim Buffers切换
@@ -182,31 +122,6 @@ autocmd filetype php set dictionary=$VIMFILES/dict/php.dict
 "-----------------------------------------------------------------
 
 call plug#begin('~/.vim/plugged')
-
-"-----------------------------------------------------------------
-" plugin - mark.vim 给各种tags标记不同的颜色，便于观看调式的插件。
-" \m  mark or unmark the word under (or before) the cursor
-" \r  manually input a regular expression. 用于搜索.
-" \n  clear this mark (i.e. the mark under the cursor), or clear all highlighted marks .
-" \*  当前MarkWord的下一个     \#  当前MarkWord的上一个
-" \/  所有MarkWords的下一个    \?  所有MarkWords的上一个
-"-----------------------------------------------------------------
-
-
-"-----------------------------------------------------------------
-" plugin - NERD_tree.vim 以树状方式浏览系统中的文件和目录
-" :NERDtree 打开NERD_tree         :NERDtreeClose    关闭NERD_tree
-" o 打开关闭文件或者目录         t 在标签页中打开
-" T 在后台标签页中打开           ! 执行此文件
-" p 到上层目录                   P 到根目录
-" K 到第一个节点                 J 到最后一个节点
-" u 打开上层目录                 m 显示文件系统菜单（添加、删除、移动操作）
-" r 递归刷新当前目录             R 递归刷新当前根目录
-"-----------------------------------------------------------------
-" F3 NERDTree 切换
-"map <F3> :NERDTreeToggle<CR>
-"imap <F3> <ESC>:NERDTreeToggle<CR>
-
 
 "-----------------------------------------------------------------
 " plugin - NERD_commenter.vim   注释代码用的，
@@ -219,70 +134,48 @@ call plug#begin('~/.vim/plugged')
 let NERDSpaceDelims=1       " 让注释符与语句之间留一个空格
 let NERDCompactSexyComs=1   " 多行注释时样子更好看
 
-
 "-----------------------------------------------------------------
-" plugin - DoxygenToolkit.vim  由注释生成文档，并且能够快速生成函数标准注释
+"vim easy align
 "-----------------------------------------------------------------
-let g:DoxygenToolkit_authorName="Asins - asinsimple AT gmail DOT com"
-let g:DoxygenToolkit_briefTag_funcName="yes"
-map <leader>da :DoxAuthor<CR>
-map <leader>df :Dox<CR>
-map <leader>db :DoxBlock<CR>
-map <leader>dc a <LEFT><LEFT><LEFT>
+Plug 'junegunn/vim-easy-align'
+" Start interactive EasyAlign in visual mode (e.g. vipga)
+xmap ga <Plug>(EasyAlign)
+" Start interactive EasyAlign for a motion/text object (e.g. gaip)
+nmap ga <Plug>(EasyAlign)
 
 
 "-----------------------------------------------------------------
-" plugin – ZenCoding.vim 很酷的插件，HTML代码生成
-" 插件最新版：http://github.com/mattn/zencoding-vim
-" 常用命令可看：http://nootn.com/blog/Tool/23/
+"vim tex
 "-----------------------------------------------------------------
 
+Plug 'lervag/vimtex'
+" This is necessary for VimTeX to load properly. The "indent" is optional.
+" Note that most plugin managers will do this automatically.
+filetype plugin indent on
 
-"-----------------------------------------------------------------
-" plugin – checksyntax.vim    JavaScript常见语法错误检查
-" 默认快捷方式为 F5
-"-----------------------------------------------------------------
-let g:checksyntax_auto = 0 " 不自动检查
+" This enables Vim's and neovim's syntax-related features. Without this, some
+" VimTeX features will not work (see ":help vimtex-requirements" for more
+" info).
+syntax enable
 
+" Viewer options: One may configure the viewer either by specifying a built-in
+" viewer method:
+let g:vimtex_view_method = 'zathura'
 
-"-----------------------------------------------------------------
-" plugin - NeoComplCache.vim    自动补全插件
-"-----------------------------------------------------------------
-let g:AutoComplPop_NotEnableAtStartup = 1
-let g:NeoComplCache_EnableAtStartup = 1
-let g:NeoComplCache_SmartCase = 1
-let g:NeoComplCache_TagsAutoUpdate = 1
-let g:NeoComplCache_EnableInfo = 1
-let g:NeoComplCache_EnableCamelCaseCompletion = 1
-let g:NeoComplCache_MinSyntaxLength = 3
-let g:NeoComplCache_EnableSkipCompletion = 1
-let g:NeoComplCache_SkipInputTime = '0.5'
-let g:NeoComplCache_SnippetsDir = $VIMFILES.'/snippets'
-" <TAB> completion.
-"inoremap <expr><TAB> pumvisible() ? "\<C-n>" : "\<TAB>"
-" snippets expand key
-imap <silent> <C-e> <Plug>(neocomplcache_snippets_expand)
-smap <silent> <C-e> <Plug>(neocomplcache_snippets_expand)
+" Or with a generic interface:
+let g:vimtex_view_general_viewer = 'okular'
+let g:vimtex_view_general_options = '--unique file:@pdf\#src:@line@tex'
 
+" VimTeX uses latexmk as the default compiler backend. If you use it, which is
+" strongly recommended, you probably don't need to configure anything. If you
+" want another compiler backend, you can change it as follows. The list of
+" supported backends and further explanation is provided in the documentation,
+" see ":help vimtex-compiler".
+let g:vimtex_compiler_method = 'latexrun'
 
-"-----------------------------------------------------------------
-" plugin - matchit.vim   对%命令进行扩展使得能在嵌套标签和语句之间跳转
-" % 正向匹配      g% 反向匹配
-" [% 定位块首     ]% 定位块尾
-"-----------------------------------------------------------------
-
-
-"-----------------------------------------------------------------
-" plugin - vcscommand.vim   对%命令进行扩展使得能在嵌套标签和语句之间跳转
-" SVN/git管理工具
-"-----------------------------------------------------------------
-
-
-"-----------------------------------------------------------------
-" plugin – a.vim
-"----------------------------------------------------------------- 
-
-
+" Most VimTeX mappings rely on localleader and this can be changed with the
+" following line. The default is usually fine and is the symbol "\".
+let maplocalleader = ","
 
 "-----------------------------------------------------------------
 " 自定义配置
@@ -408,12 +301,7 @@ map <F8> :call Debug()<CR>
 map <F2> ggVG"+y<CR>
 map <F3> "+p<CR>
 map <F9> :%s/\s\+$//<CR>
-"vmap <c-c> "+y
-"set directory=/tmp
 
-"let g:SuperTabDefaultCompletionType="context"   
-
-let g:ycm_confirm_extra_conf = 0
 " 自动补全配置
 set completeopt=longest,menu    "让Vim的补全菜单行为与一般IDE一致(参考VimTip1228)
 autocmd InsertLeave * if pumvisible() == 0|pclose|endif "离开插入模式后自动关闭预览窗口
@@ -424,30 +312,9 @@ inoremap <expr> <Up>       pumvisible() ? "\<C-p>" : "\<Up>"
 inoremap <expr> <PageDown> pumvisible() ? "\<PageDown>\<C-p>\<C-n>" : "\<PageDown>"
 inoremap <expr> <PageUp>   pumvisible() ? "\<PageUp>\<C-p>\<C-n>" : "\<PageUp>"
 
-"youcompleteme  默认tab  s-tab 和自动补全冲突
-let g:ycm_key_list_select_completion=['<c-n>']
-let g:ycm_key_list_select_completion = ['<Down>']
-let g:ycm_key_list_previous_completion=['<c-p>']
-let g:ycm_key_list_previous_completion = ['<Up>']
-let g:ycm_confirm_extra_conf=0 "关闭加载.ycm_extra_conf.py提示
-
-let g:ycm_collect_identifiers_from_tags_files=1 " 开启 YCM 基于标签引擎
-let g:ycm_min_num_of_chars_for_completion=2 " 从第2个键入字符就开始罗列匹配项
-let g:ycm_cache_omnifunc=0  " 禁止缓存匹配项,每次都重新生成匹配项
-let g:ycm_seed_identifiers_with_syntax=1    " 语法关键字补全
 "nnoremap <leader>lo :lopen<CR> "open locationlist
 "nnoremap <leader>lc :lclose<CR>    "close locationlist
 inoremap <leader><leader> <C-x><C-o>
-
-"在注释输入中也能补全
-let g:ycm_complete_in_comments = 1
-"在字符串输入中也能补全
-let g:ycm_complete_in_strings = 1
-"注释和字符串中的文字也会被收入补全
-let g:ycm_collect_identifiers_from_comments_and_strings = 0
-let g:ycm_global_ycm_extra_conf = '~/.ycm_extra_conf.py'
-nnoremap <leader>jd :YcmCompleter GoToDefinitionElseDeclaration<CR>
-let g:ycm_collect_identifiers_from_tag_files = 1
 
 set completeopt=menu
 
@@ -470,10 +337,6 @@ set statusline+=%#warningmsg#
 set statusline+=%{SyntasticStatuslineFlag()}
 set statusline+=%*
 
-" vim-gutentags 配置
-" 作者：韦易笑
-" 链接：https://www.zhihu.com/question/47691414/answer/373700711
-" gutentags 搜索工程目录的标志，碰到这些文件/目录名就停止向上一级目录递归
 " Plug 'ludovicchabant/vim-gutentags'
 let g:gutentags_project_root = ['.root', '.svn', '.git', '.hg', '.project', 'data', 'dataset', 'datasets']
 
@@ -494,8 +357,6 @@ if !isdirectory(s:vim_tags)
    silent! call mkdir(s:vim_tags, 'p')
 endif
 
-"Plug 'msanders/snipmate.vim'
-"Plug 'tmhedberg/matchit'
 Plug 'bling/vim-airline'
 let g:airline_theme="luna" 
 
@@ -506,23 +367,15 @@ nnoremap <F4> :NERDTreeMirror<CR>
 nnoremap <F4> :NERDTreeToggle<CR>
 
 Plug 'pbrisbin/vim-mkdir'
-"Plug 'godlygeek/tabular'
-"Plug 'suan/vim-instant-markdown'
 Plug 'morhetz/gruvbox'
 Plug 'preservim/tagbar'
 
 " Snippets are separated from the engine. Add this if you want them:
 Plug 'honza/vim-snippets'
-
 Plug 'tpope/vim-fugitive'
 
 " Use release branch
 Plug 'neoclide/coc.nvim', {'branch': 'release'}
-" Or build from source code
-" Install yarn from https://yarnpkg.com
-" Plug 'neoclide/coc.nvim', {'do': 'yarn install --frozen-lockfile'}
-" Plug 'zxqfl/tabnine-vim'
-" Plug 'rust-lang/rust.vim'
 nnoremap <silent> K :call CocActionAsync('doHover')<cr>
 
 Plug 'gioele/vim-autoswap'
@@ -688,8 +541,6 @@ call plug#end()
 colorscheme gruvbox
 set bg=dark
 
-
-
 set mouse-=a
 set textwidth=512
 set wrap
@@ -741,4 +592,7 @@ endfunction
 
 imap <silent> <C-Y> <C-R><C-R>=LookUpwards()<CR>
 let g:coc_disable_startup_warning = 1
+
+
 set mouse=
+
