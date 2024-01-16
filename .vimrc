@@ -358,6 +358,7 @@ if !isdirectory(s:vim_tags)
 endif
 
 Plug 'bling/vim-airline'
+Plug 'vim-airline/vim-airline-themes'
 let g:airline_theme="luna" 
 
 nnoremap <C-l> :TagbarToggle<CR>
